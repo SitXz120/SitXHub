@@ -66,7 +66,7 @@ uselesslabelone.BackgroundTransparency = 1.000
 uselesslabelone.Position = UDim2.new(0.302473009, 0, 0, 0)
 uselesslabelone.Size = UDim2.new(0, 95, 0, 24)
 uselesslabelone.Font = Enum.Font.SourceSans
-uselesslabelone.Text = "Anti Afk V1 By Moji"
+uselesslabelone.Text = "Anti - AFK V1 By Moji"
 uselesslabelone.TextColor3 = Color3.fromRGB(255, 255, 255)
 uselesslabelone.TextSize = 14.000
 
@@ -143,7 +143,7 @@ uselesslabelfour.BackgroundTransparency = 1.000
 uselesslabelfour.Position = UDim2.new(0.0580285639, 0, 0.8125, 0)
 uselesslabelfour.Size = UDim2.new(0, 95, 0, 12)
 uselesslabelfour.Font = Enum.Font.SourceSans
-uselesslabelfour.Text = "Anti-Afk Auto Enabled"
+uselesslabelfour.Text = "Anti - AFK กำลังทำงานอยู่"
 uselesslabelfour.TextColor3 = Color3.fromRGB(255, 255, 255)
 uselesslabelfour.TextSize = 14.000
 
