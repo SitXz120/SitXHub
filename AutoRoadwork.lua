@@ -83,59 +83,29 @@ end
 local buyPosition = Vector3.new(-2059.03, 8.37, -1643.66)
 
 local function moveToAndBuyRoadwork()
-    while not hasRoadworkTraining() do
-        print("🚶‍♂️ กำลังเดินไปซื้อ Roadwork Training...")
-        moveToPosition(buyPosition)
+    if hasRoadworkTraining() then return end
+    print("🚶‍♂️ กำลังเดินไปซื้อ Roadwork Training...")
+    moveToPosition(buyPosition)
 
-        local player = game.Players.LocalPlayer
-        local character = player.Character or workspace.Living:FindFirstChild(player.Name)
-        if not character or not character.PrimaryPart then
-            warn("❌ ไม่พบตัวละครของผู้เล่น!")
-            return
-        end
+    local gymObjects = workspace:FindFirstChild("MapMisc")
+        and workspace.MapMisc:FindFirstChild("Purchases")
+        and workspace.MapMisc.Purchases:FindFirstChild("GYM")
+        and workspace.MapMisc.Purchases.GYM:GetChildren()
 
-        local playerPosition = character.PrimaryPart.Position
-        local gymObjects = workspace:FindFirstChild("MapMisc")
-            and workspace.MapMisc:FindFirstChild("Purchases")
-            and workspace.MapMisc.Purchases:FindFirstChild("GYM")
-            and workspace.MapMisc.Purchases.GYM:GetChildren()
-
-        if gymObjects then
-            local nearestGym = nil
-            local minDistance = math.huge  
-
-            -- 🔍 ค้นหา "Roadwork Training" ที่ใกล้ที่สุด
-            for _, obj in pairs(gymObjects) do
-                if obj:IsA("Model") and obj.Name == "Roadwork Training" then
-                    local part = obj:FindFirstChildWhichIsA("BasePart") -- หา Part ที่ใช้คำนวณระยะทาง
-                    if part then
-                        local distance = (part.Position - playerPosition).Magnitude
-                        if distance < minDistance then
-                            minDistance = distance
-                            nearestGym = obj
-                        end
-                    end
-                end
-            end
-
-            -- 🎯 กด ClickDetector ของ "Roadwork Training" ที่ใกล้ที่สุด
-            if nearestGym then
-                local clickDetector = nearestGym:FindFirstChild("ClickDetector", true)
+    if gymObjects then
+        for _, obj in pairs(gymObjects) do
+            if obj:IsA("Model") and obj.Name == "Roadwork Training" then
+                local clickDetector = obj:FindFirstChild("ClickDetector", true)
                 if clickDetector then
-                    print("✅ กำลังกด ClickDetector ของ Roadwork Training ที่ใกล้ที่สุด...")
+                    print("✅ กำลังกด ClickDetector ของ Roadwork Training...")
                     fireclickdetector(clickDetector)
-                else
-                    warn("❌ ไม่พบ ClickDetector ใน Roadwork Training!")
+                    wait(0.5)
+                    return
                 end
-            else
-                warn("❌ ไม่พบ Roadwork Training ในพื้นที่!")
             end
-        else
-            warn("❌ ไม่พบ MapMisc.Purchases.GYM!")
         end
-
-        wait(0.5)
     end
+    warn("❌ ไม่พบ Roadwork Training ให้ซื้อ!")
 end
 
 -- ✅ ฟังก์ชันใช้ Roadwork Training
@@ -179,19 +149,16 @@ local positions = {
     Vector3.new(-1951.92, 4.05, -1646.66)
 }
 
--- ✅ **กระบวนการทำงานหลัก (วนลูป Roadwork ตลอดไป)**
+-- ✅ **กระบวนการทำงานหลัก (ทำแค่ 1 รอบ)**
 checkStaminaAndRun() -- เรียกใช้ Heartbeat สำหรับเช็ค Stamina
 
-while true do
-    print("🔄 เริ่มกระบวนการ Roadwork ใหม่! 🔄")
+print("🔄 เริ่ม Roadwork! 🔄")
 
-    moveToAndBuyRoadwork()
-    useRoadworkTraining()
+moveToAndBuyRoadwork()
+useRoadworkTraining()
 
-    for _, pos in ipairs(positions) do
-        moveToPosition(pos)
-    end
-
-    print("✅ จบ Roadwork รอบนี้! เริ่มรอบใหม่อีกครั้ง... 🔄")
-    wait(1)
+for _, pos in ipairs(positions) do
+    moveToPosition(pos)
 end
+
+print("✅ Roadwork เสร็จสิ้นแล้ว! 🚀")
