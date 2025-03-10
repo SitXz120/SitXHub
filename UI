@@ -1,0 +1,127 @@
+local MyExecutorUI = {}
+
+-- 🏗️ สร้างหน้าต่าง UI
+function MyExecutorUI:CreateWindow(title)
+    local ScreenGui = Instance.new("ScreenGui")
+    local Frame = Instance.new("Frame")
+    local TitleLabel = Instance.new("TextLabel")
+
+    ScreenGui.Parent = game:GetService("CoreGui")
+
+    Frame.Parent = ScreenGui
+    Frame.Size = UDim2.new(0, 400, 0, 350)
+    Frame.Position = UDim2.new(0.5, -200, 0.5, -175)
+    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Frame.BorderSizePixel = 0
+
+    TitleLabel.Parent = Frame
+    TitleLabel.Size = UDim2.new(1, 0, 0, 40)
+    TitleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Text = title
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 16
+
+    return Frame
+end
+
+-- 🔘 ปุ่มกด
+function MyExecutorUI:CreateButton(parent, text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Parent = parent
+    Button.Size = UDim2.new(0.9, 0, 0, 40)
+    Button.Position = UDim2.new(0.05, 0, 0.2, 0)
+    Button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Text = text
+    Button.Font = Enum.Font.Gotham
+    Button.TextSize = 14
+
+    Button.MouseButton1Click:Connect(callback)
+end
+
+-- 🔲 Toggle (เปิด/ปิด)
+function MyExecutorUI:CreateToggle(parent, text, callback)
+    local ToggleFrame = Instance.new("Frame")
+    local ToggleButton = Instance.new("TextButton")
+    local State = false
+
+    ToggleFrame.Parent = parent
+    ToggleFrame.Size = UDim2.new(0.9, 0, 0, 40)
+    ToggleFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    ToggleButton.Parent = ToggleFrame
+    ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleButton.Text = text .. " (OFF)"
+
+    ToggleButton.MouseButton1Click:Connect(function()
+        State = not State
+        ToggleButton.Text = text .. (State and " (ON)" or " (OFF)")
+        ToggleButton.BackgroundColor3 = State and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        callback(State)
+    end)
+end
+
+-- 🎚️ Slider (ปรับค่า)
+function MyExecutorUI:CreateSlider(parent, text, min, max, callback)
+    local SliderFrame = Instance.new("Frame")
+    local SliderLabel = Instance.new("TextLabel")
+    local Slider = Instance.new("TextButton")
+
+    SliderFrame.Parent = parent
+    SliderFrame.Size = UDim2.new(0.9, 0, 0, 40)
+    SliderFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    SliderLabel.Parent = SliderFrame
+    SliderLabel.Size = UDim2.new(1, 0, 1, 0)
+    SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SliderLabel.Text = text .. ": " .. min
+    SliderLabel.TextSize = 14
+
+    Slider.Parent = SliderFrame
+    Slider.Size = UDim2.new(0, 20, 1, 0)
+    Slider.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+
+    Slider.MouseButton1Down:Connect(function()
+        local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+        local moving
+        moving = mouse.Move:Connect(function()
+            local percent = math.clamp((mouse.X - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
+            local value = math.floor(min + (max - min) * percent)
+            Slider.Position = UDim2.new(percent, -10, 0, 0)
+            SliderLabel.Text = text .. ": " .. value
+            callback(value)
+        end)
+        mouse.Button1Up:Connect(function()
+            moving:Disconnect()
+        end)
+    end)
+end
+
+-- 🎨 ColorPicker (เลือกสี)
+function MyExecutorUI:CreateColorPicker(parent, text, callback)
+    local ColorPickerFrame = Instance.new("Frame")
+    local ColorBox = Instance.new("Frame")
+
+    ColorPickerFrame.Parent = parent
+    ColorPickerFrame.Size = UDim2.new(0.9, 0, 0, 40)
+    ColorPickerFrame.Position = UDim2.new(0.05, 0, 0.5, 0)
+    ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    ColorBox.Parent = ColorPickerFrame
+    ColorBox.Size = UDim2.new(0, 30, 0, 30)
+    ColorBox.Position = UDim2.new(0.85, 0, 0.125, 0)
+    ColorBox.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+    ColorBox.MouseButton1Click:Connect(function()
+        local newColor = Color3.fromRGB(math.random(255), math.random(255), math.random(255))
+        ColorBox.BackgroundColor3 = newColor
+        callback(newColor)
+    end)
+end
+
+return MyExecutorUI
