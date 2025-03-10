@@ -1,6 +1,8 @@
+-- TTT
+
 local MyExecutorUI = {}
 
--- 🏗️ สร้างหน้าต่าง UI
+-- 🏗️ สร้างหน้าต่าง UI แบบ Drag & Drop
 function MyExecutorUI:CreateWindow(title)
     local ScreenGui = Instance.new("ScreenGui")
     local Frame = Instance.new("Frame")
@@ -9,14 +11,16 @@ function MyExecutorUI:CreateWindow(title)
     ScreenGui.Parent = game:GetService("CoreGui")
 
     Frame.Parent = ScreenGui
-    Frame.Size = UDim2.new(0, 400, 0, 350)
-    Frame.Position = UDim2.new(0.5, -200, 0.5, -175)
-    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Frame.Size = UDim2.new(0, 450, 0, 400)
+    Frame.Position = UDim2.new(0.5, -225, 0.5, -200)
+    Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Frame.BorderSizePixel = 0
+    Frame.Active = true
+    Frame.Draggable = true -- ทำให้ลากได้
 
     TitleLabel.Parent = Frame
     TitleLabel.Size = UDim2.new(1, 0, 0, 40)
-    TitleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    TitleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLabel.Text = title
     TitleLabel.Font = Enum.Font.GothamBold
@@ -25,22 +29,30 @@ function MyExecutorUI:CreateWindow(title)
     return Frame
 end
 
--- 🔘 ปุ่มกด
+-- 🔘 ปุ่มกด (มีเอฟเฟกต์ Hover)
 function MyExecutorUI:CreateButton(parent, text, callback)
     local Button = Instance.new("TextButton")
     Button.Parent = parent
     Button.Size = UDim2.new(0.9, 0, 0, 40)
-    Button.Position = UDim2.new(0.05, 0, 0.2, 0)
+    Button.Position = UDim2.new(0.05, 0, 0.15, 0)
     Button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.Text = text
     Button.Font = Enum.Font.Gotham
     Button.TextSize = 14
 
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(0, 200, 255) -- Hover Effect
+    end)
+
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    end)
+
     Button.MouseButton1Click:Connect(callback)
 end
 
--- 🔲 Toggle (เปิด/ปิด)
+-- 🔲 Toggle (มีอนิเมชันสลับ ON/OFF)
 function MyExecutorUI:CreateToggle(parent, text, callback)
     local ToggleFrame = Instance.new("Frame")
     local ToggleButton = Instance.new("TextButton")
@@ -48,7 +60,7 @@ function MyExecutorUI:CreateToggle(parent, text, callback)
 
     ToggleFrame.Parent = parent
     ToggleFrame.Size = UDim2.new(0.9, 0, 0, 40)
-    ToggleFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+    ToggleFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
     ToggleFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 
     ToggleButton.Parent = ToggleFrame
@@ -65,63 +77,61 @@ function MyExecutorUI:CreateToggle(parent, text, callback)
     end)
 end
 
--- 🎚️ Slider (ปรับค่า)
-function MyExecutorUI:CreateSlider(parent, text, min, max, callback)
-    local SliderFrame = Instance.new("Frame")
-    local SliderLabel = Instance.new("TextLabel")
-    local Slider = Instance.new("TextButton")
+-- 🔽 Dropdown (เมนูตัวเลือก)
+function MyExecutorUI:CreateDropdown(parent, text, options, callback)
+    local Dropdown = Instance.new("TextButton")
+    local Opened = false
 
-    SliderFrame.Parent = parent
-    SliderFrame.Size = UDim2.new(0.9, 0, 0, 40)
-    SliderFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Dropdown.Parent = parent
+    Dropdown.Size = UDim2.new(0.9, 0, 0, 40)
+    Dropdown.Position = UDim2.new(0.05, 0, 0.35, 0)
+    Dropdown.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Dropdown.Text = text
 
-    SliderLabel.Parent = SliderFrame
-    SliderLabel.Size = UDim2.new(1, 0, 1, 0)
-    SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SliderLabel.Text = text .. ": " .. min
-    SliderLabel.TextSize = 14
+    local OptionFrame = Instance.new("Frame")
+    OptionFrame.Parent = parent
+    OptionFrame.Size = UDim2.new(0.9, 0, 0, #options * 35)
+    OptionFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
+    OptionFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    OptionFrame.Visible = false
 
-    Slider.Parent = SliderFrame
-    Slider.Size = UDim2.new(0, 20, 1, 0)
-    Slider.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    for i, option in pairs(options) do
+        local OptionButton = Instance.new("TextButton")
+        OptionButton.Parent = OptionFrame
+        OptionButton.Size = UDim2.new(1, 0, 0, 35)
+        OptionButton.Position = UDim2.new(0, 0, (i - 1) / #options, 0)
+        OptionButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        OptionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        OptionButton.Text = option
 
-    Slider.MouseButton1Down:Connect(function()
-        local mouse = game:GetService("Players").LocalPlayer:GetMouse()
-        local moving
-        moving = mouse.Move:Connect(function()
-            local percent = math.clamp((mouse.X - SliderFrame.AbsolutePosition.X) / SliderFrame.AbsoluteSize.X, 0, 1)
-            local value = math.floor(min + (max - min) * percent)
-            Slider.Position = UDim2.new(percent, -10, 0, 0)
-            SliderLabel.Text = text .. ": " .. value
-            callback(value)
+        OptionButton.MouseButton1Click:Connect(function()
+            Dropdown.Text = option
+            OptionFrame.Visible = false
+            Opened = false
+            callback(option)
         end)
-        mouse.Button1Up:Connect(function()
-            moving:Disconnect()
-        end)
+    end
+
+    Dropdown.MouseButton1Click:Connect(function()
+        Opened = not Opened
+        OptionFrame.Visible = Opened
     end)
 end
 
--- 🎨 ColorPicker (เลือกสี)
-function MyExecutorUI:CreateColorPicker(parent, text, callback)
-    local ColorPickerFrame = Instance.new("Frame")
-    local ColorBox = Instance.new("Frame")
+-- 📜 Paragraph (สำหรับข้อความ)
+function MyExecutorUI:CreateParagraph(parent, text)
+    local Paragraph = Instance.new("TextLabel")
 
-    ColorPickerFrame.Parent = parent
-    ColorPickerFrame.Size = UDim2.new(0.9, 0, 0, 40)
-    ColorPickerFrame.Position = UDim2.new(0.05, 0, 0.5, 0)
-    ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-
-    ColorBox.Parent = ColorPickerFrame
-    ColorBox.Size = UDim2.new(0, 30, 0, 30)
-    ColorBox.Position = UDim2.new(0.85, 0, 0.125, 0)
-    ColorBox.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-
-    ColorBox.MouseButton1Click:Connect(function()
-        local newColor = Color3.fromRGB(math.random(255), math.random(255), math.random(255))
-        ColorBox.BackgroundColor3 = newColor
-        callback(newColor)
-    end)
+    Paragraph.Parent = parent
+    Paragraph.Size = UDim2.new(0.9, 0, 0, 60)
+    Paragraph.Position = UDim2.new(0.05, 0, 0.5, 0)
+    Paragraph.BackgroundTransparency = 1
+    Paragraph.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Paragraph.Text = text
+    Paragraph.Font = Enum.Font.Gotham
+    Paragraph.TextSize = 14
+    Paragraph.TextWrapped = true
 end
 
 return MyExecutorUI
